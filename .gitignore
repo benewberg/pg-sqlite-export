@@ -1,0 +1,3 @@
+tests/
+pgdb_export.sql
+pg_sqlite_export.pyc
