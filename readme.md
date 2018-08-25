@@ -3,6 +3,7 @@
 Export all Postgres table data in a given database as INSERT statements compatible with SQLite3 into a file.
 This file can then be imported into an SQLite database, containing the same schema.
 
+Similar to Postgres's `pg_dump` command, but compatible with SQLite3.
 This utility mimics the behavior of the official SQLite3 CLI's `.mode INSERT` command.
 
 Usage:
@@ -24,11 +25,28 @@ The output file will be written to the current working directory and be named pg
 
 Create test data in Postgres test database:
 ```
-create table tbl1 (x integer primary key, y text, dt date, n numeric);
-insert into tbl1 values (1, 'a', '2018-08-20'::date, 123.45), (2, 'b', '2018-08-21'::date, 2000.00), (3, 'c', '2018-08-22'::date, 999.99);
+CREATE TABLE tbl1 (
+	x INTEGER PRIMARY KEY, 
+	y TEXT, 
+	dt DATE, 
+	n NUMERIC
+);
+INSERT INTO tbl1 VALUES 
+	(1, 'a', '2018-08-20'::date, 123.45), 
+	(2, 'b', '2018-08-21'::date, 2000.00), 
+	(3, 'c', '2018-08-22'::date, 999.99);
 
-create table tbl2 (col1 integer not null, col2 text not null default '', col3 date default now(), col4 numeric, primary key(col1, col2));
-insert into tbl2 values (100, 'abc', NULL, 123.456), (200, 'def', '2018-08-20'::date, 987.65), (100, 'xyz', NULL, NULL);
+CREATE TABLE tbl2 (
+	col1 INTEGER NOT NULL, 
+	col2 TEXT NOT NULL DEFAULT '', 
+	col3 DATE DEFAULT now(), 
+	col4 NUMERIC(12,4), 
+	PRIMARY KEY(col1, col2)
+);
+INSERT INTO tbl2 VALUES 
+	(100, 'abc', NULL, 123.456), 
+	(200, 'def', '2018-08-20'::date, 987.65), 
+	(100, 'xyz', NULL, NULL);
 ```
 
 Expected output using the above sample data:

@@ -20,20 +20,26 @@ class PgSqliteExport:
                                      port=port)
         self.db = pg.connect(self.cxn_string)
         self.db.autocommit = True
-        cwd = os.getcwd()
-        self.output_file = '{cwd}/pgdb_export.sql'.format(cwd=cwd)
-        self._write_header()
 
     def __name__(self):
         return 'pg_sqlite_export'
     
     def _close(self):
         self.db.close()
+
+    def _create_output_file(self):
+        cwd = os.getcwd()
+        self.output_file = '{cwd}/pgdb_export.sql'.format(cwd=cwd)
+        self._write_header()
+
+    def _finish_output_file(self):
         self._write_footer()
 
     def export_pg_data(self):
+        self._create_output_file()
         self._get_all_tables()
-        self._get_all_table_data()
+        self._export_all_table_data()
+        self._finish_output_file()
         self._close()
 
     def _get_all_tables(self):
@@ -48,7 +54,7 @@ class PgSqliteExport:
         self.tables = [row[0] for row in curs]
         curs.close()
 
-    def _get_all_table_data(self):
+    def _export_all_table_data(self):
         curs = self.db.cursor()
         stmt = """
             SELECT * 
@@ -80,23 +86,19 @@ class PgSqliteExport:
     def _write_sql(self, stmt):
         with open(self.output_file, 'a') as file:
             file.write(stmt)
-            file.close()
 
     def _write_header(self):
         stmt = 'PRAGMA foreign_keys=0;\nBEGIN;\n'
         with open(self.output_file, 'w+') as file:
             file.write(stmt)
-            file.close()
 
     def _write_deletes(self, table):
         stmt = sql.SQL('DELETE FROM {tbl};\n').format(tbl=sql.Identifier(table)).as_string(self.db)
         with open(self.output_file, 'a') as file:
             file.write(stmt)
-            file.close()
 
     def _write_footer(self):
         stmt = 'COMMIT;'
         with open(self.output_file, 'a') as file:
             file.write(stmt)
-            file.close()
         
